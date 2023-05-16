@@ -1,0 +1,18 @@
+// src/components/withHeader.js
+import React from "react";
+import Header from "./Header";
+
+const withHeader = (Component) => {
+  const WrappedComponent = (props) => {
+    return (
+      <>
+        <Header />
+        <Component {...props} />
+      </>
+    );
+  };
+
+  return WrappedComponent;
+};
+
+export default withHeader;
