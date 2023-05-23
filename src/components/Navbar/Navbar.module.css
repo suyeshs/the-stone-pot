@@ -1,0 +1,83 @@
+.tsp__navbar-logged-in,
+.tsp__navbar-logged-out {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 6rem;
+    flex-wrap: wrap;
+}
+
+.tsp__navbar-logged-in .tsp__navbar-links,
+.tsp__navbar-logged-out .tsp__navbar-links {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.tsp__navbar-logged-in .tsp__navbar-logo,
+.tsp__navbar-logged-out .tsp__navbar-logo {
+    margin-bottom: 2rem;
+}
+
+.tsp__navbar-logged-in .tsp__navbar-logo img,
+.tsp__navbar-logged-out .tsp__navbar-logo img {
+    width: 100px;
+    height: 100px;
+}
+
+.tsp__navbar-logged-in .tsp__navbar-links_container,
+.tsp__navbar-logged-out .tsp__navbar-links_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.tsp__navbar-logged-in .tsp__navbar-links_container p,
+.tsp__navbar-logged-out .tsp__navbar-links_container p {
+    color: var(--color-tuscan-red);
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 25px;
+    text-transform: capitalize;
+    margin: 0 1rem;
+    cursor: pointer;
+}
+
+.tsp__navbar-logged-in .tsp__navbar-links_container button,
+.tsp__navbar-logged-out .tsp__navbar-links_container button {
+    padding: 0.5rem 1rem;
+    color: #fff;
+    background: #FF4820;
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 25px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+@media screen and (max-width: 1050px) {
+    .tsp__navbar-logged-in .tsp__navbar-links_container,
+    .tsp__navbar-logged-out .tsp__navbar-links_container {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .tsp__navbar-logged-in,
+    .tsp__navbar-logged-out {
+        padding: 2rem 4rem;
+    }
+}
+
+@media screen and (max-width: 550px) {
+    .tsp__navbar-logged-in,
+    .tsp__navbar-logged-out {
+        padding: 2rem;
+    }
+}

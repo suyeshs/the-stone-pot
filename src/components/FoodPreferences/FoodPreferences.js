@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { auth, firestore } from '../../api/firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import React, { useState, useEffect, useContext } from "react";
+import { firestore } from "../../api/firebase";
+import { updateDoc, doc, getDoc } from "firebase/firestore";
+import { AuthContext } from "../../AuthContext";
 import { useNavigate } from 'react-router-dom';
 
 const FoodPreferences = () => {
-  const [loading, setLoading] = useState(true); // New loading state
+  const authState = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
   const [foodPreference, setFoodPreference] = useState('veg');
   const [specialDiet, setSpecialDiet] = useState('');
   const [nonVegItems, setNonVegItems] = useState({
@@ -18,35 +20,34 @@ const FoodPreferences = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          const userDocRef = doc(firestore, 'users', user.email);
-          const userDocSnapshot = await getDoc(userDocRef);
-          const userData = userDocSnapshot.data();
-
-          if (userData && userData.food_preference) {
-            const { foodPreference, specialDiet, nonVegItems } = userData.food_preference;
-            setFoodPreference(foodPreference);
-            setSpecialDiet(specialDiet);
-            setNonVegItems(nonVegItems);
-            
-            navigate('/find-dishes');
-          } else {
-            setLoading(false);
-          }
-        } catch (error) {
-          console.error('Error fetching profile data:', error);
+    const fetchUserData = async () => {
+      try {
+        console.log('Fetching user data...');
+        const userDocRef = doc(firestore, 'users', authState.userEmail);
+        const userDocSnapshot = await getDoc(userDocRef);
+        const userData = userDocSnapshot.data();
+        console.log('Fetched user data:', userData);
+  
+        if (userData && userData.food_preference) {
+          const { foodPreference, specialDiet, nonVegItems } = userData.food_preference;
+          setFoodPreference(foodPreference || '');
+          setSpecialDiet(specialDiet || '');
+          setNonVegItems(nonVegItems || {});
         }
-      } else {
-        console.log("No user is signed in.");
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+        setLoading(false);
       }
-    });
-
-    // Clean up the subscription on unmount
-    return () => unsubscribe();
-  }, [navigate]);
-
+    };
+  
+    if(authState.isLoggedIn) {
+      fetchUserData();
+    } else {
+      console.log('No user is signed in.');
+      setLoading(false);
+    }
+  }, [navigate, authState]);
 
   const handleFoodPreferenceChange = (e) => {
     setFoodPreference(e.target.value);
@@ -61,42 +62,40 @@ const FoodPreferences = () => {
     setNonVegItems((prevState) => ({ ...prevState, [name]: checked }));
   };
 
-  const updateProfileData = async (user, profileData) => {
-    const userDocRef = doc(firestore, 'users', user.email);
-    const foodPreferenceDocRef = doc(userDocRef, 'food_preferences', 'base');
-    await setDoc(foodPreferenceDocRef, profileData);
+  const updateProfileData = async (userEmail, profileData) => {
+    const userDocRef = doc(firestore, 'users', userEmail);
+    await updateDoc(userDocRef, {food_preference: profileData}); // Pass profileData as the second argument
     console.log('Profile data updated:', profileData);
   };
-  
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const user = auth.currentUser;
-
+      const user = authState.userEmail;
+      
+      if(!user) {
+        throw new Error("User is not signed in.");
+      }
+  
       // Prepare the updated profile data
       const profileData = {
         foodPreference,
         specialDiet,
         nonVegItems,
       };
-
+  
       // Update the profile data
       await updateProfileData(user, profileData);
-
+  
       // Redirect or perform any other action after the update
-      navigate('/find-dishes');
+      // navigate('/find-dishes'); // Remove this line
     } catch (error) {
       console.error('Error updating profile data:', error);
     }
   };
-
   if (loading) {
     return <div>Loading...</div>; // Display a loading indicator while fetching data
   }
-
-  
-
 
   return (
     <div>
@@ -149,9 +148,9 @@ const FoodPreferences = () => {
           </select>
         </div>
         <button type="submit">Save Preferences</button>
-</form>
-</div>
-);
-    
+      </form>
+    </div>
+  );
 };
+
 export default FoodPreferences;

@@ -1,66 +1,54 @@
-import React, { useState, useEffect } from "react";
-import { auth, firestore, onAuthStateChanged } from "../../api/firebase";
+import React, { useState, useEffect, useContext } from "react";
+import { firestore } from "../../api/firebase";
 import { updateDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
 import styles from "./UserProfile.module.css";
-//import UpdateProfile from "../UpdateProfile/UpdateProfile";
+import { AuthContext } from "../../AuthContext";
 
 const UserProfile = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+  const { authState } = useContext(AuthContext);
   const [userPhone, setUserPhone] = useState("");
   const [userPincode, setUserPincode] = useState("");
   const [userLocation, setUserLocation] = useState("");
-  const [error, setError] = useState("");
-
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUserProfileData = async (user) => {
-      const userDocRef = doc(firestore, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-    
-      if (userDoc.exists()) {
-        const userProfileDocRef = doc(userDocRef, "Profile", user.uid);
-        const userProfileDoc = await getDoc(userProfileDocRef);
-    
-        if (userProfileDoc.exists()) {
-          const userProfileData = userProfileDoc.data();
-          setUserPhone(userProfileData.phone);
-          setUserPincode(userProfileData.pincode);
-          setUserLocation(userProfileData.location);
-    
-          if (userProfileData.phone && userProfileData.pincode && userProfileData.location) {
-            navigate("/food-preferences");
+    const checkUserProfileData = async () => {
+      const storedAuthState = JSON.parse(localStorage.getItem("authState"));
+      if (!storedAuthState || !storedAuthState.userEmail) {
+      
+        return;
+      }
+
+      console.log("User Profile Email:", storedAuthState.userEmail); // Check the user email value
+      const userEmail = storedAuthState && storedAuthState.userEmail;
+        if (!userEmail) {
+        console.error("User email not found");
+         return;
           }
-        } else {
-          await setDoc(userProfileDocRef, {
-            phone: "",
-            pincode: "",
-            location: "",
-          });
-        }
+      const userRef = doc(firestore, "users", userEmail);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        console.log("User Data:", userData); // Check the retrieved user data
+        setUserPhone(userData.phone || '');
+        setUserPincode(userData.pincode || '');
+        setUserLocation(userData.location || '');
+
       } else {
-        await setDoc(userDocRef, {});
-        const userProfileDocRef = doc(userDocRef, "Profile", user.uid);
-        await setDoc(userProfileDocRef, {
+        console.log("User document does not exist");
+        // If the user document doesn't exist, create it with default values
+        await setDoc(userRef, {
           phone: "",
           pincode: "",
           location: "",
         });
       }
     };
-    
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser(user);
-        checkUserProfileData(user);
-      }
-    });
 
-    return () => {
-      unsubscribe();
-    };
-  }, [navigate]);
+    if (authState.isLoggedIn) {
+      checkUserProfileData();
+    }
+  }, [authState]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,49 +70,36 @@ const UserProfile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const user = auth.currentUser;
+      const storedAuthState = JSON.parse(localStorage.getItem("authState"));
+      const userRef = doc(firestore, "users", storedAuthState.userEmail); // Updated document reference
+      const userDoc = await getDoc(userRef);
+      console.log("User Document:", userDoc); // Check the user document
   
-      // Prepare the updated profile data
-      const profileData = {
-        phone: userPhone,
-        pincode: userPincode,
-        location: userLocation,
-      };
-  
-      const updateProfileData = async (user, profileData) => {
-        const userDocRef = doc(firestore, "users", user.email); // Use user's email as the document ID
-        await updateDoc(userDocRef, { Profile: profileData, profile_updated: 'yes' }); // Set the profile data and profile_updated flag
-        console.log("Profile data updated:", profileData);
-      };
-  
-      // Update the profile data
-      await updateProfileData(user, profileData);
-  
-      // Redirect or perform any other action after the update
-      navigate("/food-preferences");
+      if (userDoc.exists()) {
+        await updateDoc(userRef, {
+          phone: userPhone,
+          pincode: userPincode,
+          location: userLocation,
+        });
+        console.log("Document updated with ID:", storedAuthState.userEmail); // Updated log statement
+      } else {
+        throw new Error("Document does not exist");
+      }
     } catch (error) {
-      console.error("Error updating profile data:", error);
-      setError("Error updating profile data. Please try again later.");
+      console.error("Error updating user data:", error);
     }
   };
-
- // if (!currentUser || !currentUser.displayName) {
-  //  return <UpdateProfile />;
- // }
+  
 
   return (
     <div className={styles.userProfile}>
       <h2>Create Your Profile</h2>
       <div className={styles.userInfo}>
-        {currentUser && currentUser.displayName && (
-          <div className={styles.userName}>{currentUser.displayName}</div>
-        )}
-        {currentUser && (
-          <div className={styles.userEmail}>{currentUser.email}</div>
-        )}
+        <div className={styles.userName}>{authState.userEmail}</div>
+        <div className={styles.userEmail}>{authState.userEmail}</div>
       </div>
       <form onSubmit={handleSubmit}>
-        <input
+      <input
           type="tel"
           name="userPhone"
           value={userPhone}
@@ -158,4 +133,3 @@ const UserProfile = () => {
 };
 
 export default UserProfile;
-

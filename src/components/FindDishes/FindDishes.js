@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import CuisineCard from "../CuisineCards/CuisineCards";
-import { setDoc, doc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { auth, firestore } from "../../api/firebase";
 
 const FindDishes = () => {
@@ -69,15 +69,15 @@ const FindDishes = () => {
   }, [cuisines, currentCuisineIndex, moveToNextCuisine]);
 
   const updateProfileWithLikedCuisine = async (likedCuisine) => {
-    const userFoodPrefDoc = doc(firestore, "users", auth.currentUser.email, "food_preference", "preferences");
-    await setDoc(userFoodPrefDoc, {
+    const userFoodPrefDoc = doc(firestore, "users", auth.currentUser.email);
+    await updateDoc(userFoodPrefDoc, {
       likedCuisines: arrayUnion(likedCuisine),
     }, {merge: true});
   };
   
   const updateProfileWithDislikedCuisine = async (dislikedCuisine) => {
-    const userFoodPrefDoc = doc(firestore, "users", auth.currentUser.email, "food_preference", "preferences");
-    await setDoc(userFoodPrefDoc, {
+    const userFoodPrefDoc = doc(firestore, "users", auth.currentUser.email);
+    await updateDoc(userFoodPrefDoc, {
       dislikedCuisines: arrayUnion(dislikedCuisine),
     }, {merge: true});
   };
@@ -99,4 +99,3 @@ const FindDishes = () => {
   };
   
   export default FindDishes;
-  

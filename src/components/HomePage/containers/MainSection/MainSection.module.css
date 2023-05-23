@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
+.mainSection {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.content {
+  max-width: 600px;
+  padding: 2rem;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.heading {
+  font-family: var(--font-family);
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+  line-height: 75px;
+  letter-spacing: -0.04em;
+}
+
+.description {
+  font-family: var(--font-family);
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #777;
+}
+
+.button {
+  font-family: var(--font-family);
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #f50057;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #c51162;
+}
+
+@media screen and (max-width: 768px) {
+  .heading {
+    font-size: 2rem;
+  }
+
+  .description {
+    font-size: 1.2rem;
+  }
+
+  .button {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .heading {
+    font-size: 1.8rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .button {
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (min-width: 2560px) and (min-height: 1440px) {
+  .content {
+    max-width: 1200px;
+  }
+
+  .heading {
+    font-size: 4.5rem;
+  }
+
+  .description {
+    font-size: 2.5rem;
+  }
+
+  .button {
+    font-size: 1.8rem;
+  }
+}

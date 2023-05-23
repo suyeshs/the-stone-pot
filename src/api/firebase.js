@@ -1,9 +1,7 @@
-// src/api/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, arrayUnion} from "firebase/firestore";
-import { onAuthStateChanged as authStateChanged } from "firebase/auth";
-
+import { getFirestore, arrayUnion } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA0jyPauQo1DEdqQe1MJRn856JsrtLDeZI",
@@ -16,17 +14,25 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 
-export const auth = getAuth(firebaseApp);
-export const firestore = getFirestore(firebaseApp);
-export const FieldValue = {
+const auth = getAuth(firebaseApp);
+const firestore = getFirestore(firebaseApp);
+const FieldValue = {
   arrayUnion,
 };
-export { authStateChanged as onAuthStateChanged };
 
-export const actionCodeSettings = {
+const actionCodeSettings = {
   url: "http://localhost:3000/signup",
   handleCodeInApp: true,
-  dynamicLinkDomain: "http://localhost:3000/user-profile", // Optional, if using Firebase Dynamic Links
+  dynamicLinkDomain: "http://localhost:3000/user-profile",
 };
 
-export {firebaseApp};
+export {
+  auth,
+  firestore,
+  FieldValue,
+  actionCodeSettings,
+  onAuthStateChanged,
+  firebaseApp,
+};
+
+export default firebaseConfig;
